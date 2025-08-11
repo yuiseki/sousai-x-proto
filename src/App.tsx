@@ -15,13 +15,6 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [pulseCount, setPulseCount] = useState(0);
 
-  // Auto-show overlay for high severity events
-  useEffect(() => {
-    const criticalEvent = events.find(e => e.severity >= 4);
-    if (criticalEvent && !selectedEvent) {
-      setSelectedEvent(criticalEvent);
-    }
-  }, [events, selectedEvent]);
 
   // Keyboard controls
   useEffect(() => {
@@ -56,6 +49,13 @@ function App() {
     setPulseCount(prev => prev + 1);
   }, []);
 
+  const handleShowDetails = useCallback(() => {
+    const criticalEvent = events.find(e => e.severity >= 4) || events[0];
+    if (criticalEvent) {
+      setSelectedEvent(criticalEvent);
+    }
+  }, [events]);
+
   const maxSeverity = Math.max(...events.map(e => e.severity), 1);
 
   return (
@@ -73,6 +73,7 @@ function App() {
           eventCount={events.length}
           severity={maxSeverity}
           onPulse={handlePulse}
+          onShowDetails={handleShowDetails}
         />
         
         {/* Satellite panels */}

@@ -4,9 +4,10 @@ interface CentralCoreProps {
   eventCount: number;
   severity: number;
   onPulse: () => void;
+  onShowDetails: () => void;
 }
 
-export function CentralCore({ eventCount, severity, onPulse }: CentralCoreProps) {
+export function CentralCore({ eventCount, severity, onPulse, onShowDetails }: CentralCoreProps) {
   const [rotation, setRotation] = useState(0);
   const [pulse, setPulse] = useState(false);
   const [orbitalTexts, setOrbitalTexts] = useState<string[]>([]);
@@ -93,12 +94,13 @@ export function CentralCore({ eventCount, severity, onPulse }: CentralCoreProps)
       </svg>
 
       {/* Central core */}
-      <div 
-        className={`relative w-32 h-32 rounded-full bg-gradient-to-r ${getSeverityColor()} shadow-2xl ${getSeverityGlow()} flex items-center justify-center`}
+      <button
+        onClick={onShowDetails}
+        className={`relative w-32 h-32 rounded-full bg-gradient-to-r ${getSeverityColor()} shadow-2xl ${getSeverityGlow()} flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105`}
         style={{ 
           transform: pulse ? 'scale(1.1)' : 'scale(1)',
-          transition: 'transform 0.2s'
         }}
+        title="Show event details"
       >
         <div className="absolute inset-2 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
           <div className="text-white font-mono text-xs text-center">
@@ -110,7 +112,7 @@ export function CentralCore({ eventCount, severity, onPulse }: CentralCoreProps)
             </div>
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Orbital text elements */}
       {orbitalTexts.map((text, i) => (

@@ -6,6 +6,7 @@ import { SatellitePanel } from './components/SatellitePanel';
 import { EventOverlay } from './components/EventOverlay';
 import { GlobalMap } from './components/GlobalMap';
 import { SettingsPanel } from './components/SettingsPanel';
+import HudParticles from './components/HudParticles';
 import { useDataStream } from './hooks/useDataStream';
 import { Event } from './types';
 
@@ -13,8 +14,8 @@ function App() {
   const { events, systemStatus, telemetry } = useDataStream();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showHudParticles, setShowHudParticles] = useState(false);
   const [pulseCount, setPulseCount] = useState(0);
-
 
   // Keyboard controls
   useEffect(() => {
@@ -25,6 +26,8 @@ function App() {
             setSelectedEvent(null);
           } else if (showSettings) {
             setShowSettings(false);
+          } else if (showHudParticles) {
+            setShowHudParticles(false);
           }
           break;
         case 's':
@@ -32,6 +35,10 @@ function App() {
             e.preventDefault();
             setShowSettings(!showSettings);
           }
+          break;
+        case 'h':
+          // Toggle HUD Particles with 'H' key
+          setShowHudParticles(!showHudParticles);
           break;
         case 'c':
           if (selectedEvent) {
@@ -43,7 +50,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [selectedEvent, showSettings]);
+  }, [selectedEvent, showSettings, showHudParticles]);
 
   const handlePulse = useCallback(() => {
     setPulseCount(prev => prev + 1);
@@ -60,6 +67,13 @@ function App() {
 
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 overflow-hidden relative">
+      {/* HUD Particles Background Layer */}
+      {showHudParticles && (
+        <div className="absolute inset-0 z-0">
+          <HudParticles />
+        </div>
+      )}
+
       {/* Background map */}
       <GlobalMap events={events} />
       
@@ -109,14 +123,30 @@ function App() {
       {/* Telemetry bar */}
       <TelemetryBar telemetry={telemetry} />
       
-      {/* Settings button */}
-      <button
-        onClick={() => setShowSettings(!showSettings)}
-        className="fixed top-16 right-8 w-8 h-8 bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-full flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-colors z-30"
-        title="Settings (Ctrl+S)"
-      >
-        ⚙
-      </button>
+      {/* Controls */}
+      <div className="fixed top-16 right-8 space-y-2 z-30">
+        {/* Settings button */}
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="w-8 h-8 bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-full flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-colors"
+          title="Settings (Ctrl+S)"
+        >
+          ⚙
+        </button>
+        
+        {/* HUD Particles toggle button */}
+        <button
+          onClick={() => setShowHudParticles(!showHudParticles)}
+          className={`w-8 h-8 bg-gray-800/80 backdrop-blur-sm border border-cyan-500/30 rounded-full flex items-center justify-center transition-colors ${
+            showHudParticles 
+              ? 'text-cyan-300 bg-cyan-500/20' 
+              : 'text-cyan-400 hover:text-cyan-300'
+          }`}
+          title="Toggle HUD Particles (H)"
+        >
+          ✨
+        </button>
+      </div>
       
       {/* Overlays */}
       {selectedEvent && (
@@ -135,6 +165,7 @@ function App() {
       <div className="fixed bottom-12 left-8 text-xs font-mono text-gray-500 space-y-1">
         <div>ESC: Close overlay/settings</div>
         <div>Ctrl+S: Toggle settings</div>
+        <div>H: Toggle HUD particles</div>
         <div>C: Close event overlay</div>
       </div>
     </div>

@@ -21,7 +21,8 @@ export function GlobalMap({ events }: GlobalMapProps) {
   const onMapLoad = () => {
     const map = mapRef.current?.getMap();
     if (map) {
-      map.setProjection({ name: 'globe' });
+      // MapLibre GL用のglobe projection設定
+      map.setProjection('globe');
     }
   }
 
@@ -107,6 +108,7 @@ export function GlobalMap({ events }: GlobalMapProps) {
           minZoom={0.3}
           attributionControl={false}
           onLoad={onMapLoad}
+          projection="globe"
         />
       </DeckGL>
       <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none"></div>

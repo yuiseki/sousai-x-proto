@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Map, { MapRef } from 'react-map-gl/maplibre';
 import DeckGL from '@deck.gl/react';
 import { ArcLayer, ScatterplotLayer } from '@deck.gl/layers';
@@ -13,18 +13,10 @@ export function GlobalMap({ events }: GlobalMapProps) {
   const [viewState, setViewState] = useState({
     longitude: 0,
     latitude: 20,
-    zoom: 0.8,
-    pitch: 0,
+    zoom: 1.2,
+    pitch: 45,
     bearing: 0
   });
-
-  const onMapLoad = () => {
-    const map = mapRef.current?.getMap();
-    if (map) {
-      // MapLibre GL用のglobe projection設定
-      map.setProjection('globe');
-    }
-  }
 
   const layers = [
     new ScatterplotLayer({
@@ -96,6 +88,7 @@ export function GlobalMap({ events }: GlobalMapProps) {
     <div className="absolute inset-0 opacity-80">
       <DeckGL
         initialViewState={viewState}
+        onViewStateChange={({ viewState }) => setViewState(viewState)}
         controller={true}
         layers={layers}
         getTooltip={getTooltip}
@@ -107,7 +100,6 @@ export function GlobalMap({ events }: GlobalMapProps) {
           maxZoom={6}
           minZoom={0.3}
           attributionControl={false}
-          onLoad={onMapLoad}
           projection="globe"
         />
       </DeckGL>

@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Particles from "@tsparticles/react";
+import type { Engine } from "@tsparticles/engine";
+import { loadFull } from "tsparticles";
 
 interface CentralCoreProps {
   eventCount: number;
@@ -11,6 +14,10 @@ export function CentralCore({ eventCount, severity, onPulse, onShowDetails }: Ce
   const [rotation, setRotation] = useState(0);
   const [pulse, setPulse] = useState(false);
   const [orbitalTexts, setOrbitalTexts] = useState<string[]>([]);
+
+  const particlesInit = useCallback(async (engine: Engine) => {
+    await loadFull(engine);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -52,11 +59,103 @@ export function CentralCore({ eventCount, severity, onPulse, onShowDetails }: Ce
     return 'shadow-cyan-500/50';
   };
 
+  const particleOptions = {
+    background: {
+      color: {
+        value: "transparent",
+      },
+    },
+    fpsLimit: 120,
+    particles: {
+      number: {
+        value: 0,
+      },
+      color: {
+        value: ["#0ff", "#ff0", "#f0f"],
+      },
+      shape: {
+        type: "circle",
+      },
+      opacity: {
+        value: { min: 0.5, max: 1 },
+        animation: {
+          enable: true,
+          speed: 0.8,
+          startValue: "max",
+          destroy: "min",
+        },
+      },
+      size: {
+        value: { min: 2, max: 4 },
+      },
+      links: {
+        enable: true,
+        color: "random",
+        distance: 80,
+        opacity: 0.8,
+        width: 2,
+        triangles: {
+          enable: true,
+          color: "#ffffff",
+          opacity: 0.1,
+        }
+      },
+      move: {
+        enable: true,
+        speed: 4,
+        direction: "none",
+        random: true,
+        straight: false,
+        outModes: {
+          default: "destroy",
+        },
+      },
+      twinkle: {
+        particles: {
+          enable: true,
+          frequency: 0.05,
+          opacity: 1
+        }
+      }
+    },
+    interactivity: {
+      events: {
+        onHover: {
+          enable: false,
+        },
+        onClick: {
+          enable: false,
+        },
+      },
+    },
+    detectRetina: true,
+    emitters: {
+      position: {
+        x: 50,
+        y: 50,
+      },
+      rate: {
+        quantity: 10,
+        delay: 0.05,
+      },
+      size: {
+        width: 10,
+        height: 10,
+      },
+    },
+  };
+
   return (
     <div className="relative w-80 h-80 flex items-center justify-center">
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        options={particleOptions as any}
+        className="absolute inset-0 z-0"
+      />
       {/* Outer glow ring */}
       <div 
-        className={`absolute inset-0 rounded-full bg-gradient-to-r ${getSeverityColor()} opacity-20 animate-pulse`}
+        className={`absolute inset-0 rounded-full bg-gradient-to-r ${getSeverityColor()} opacity-20 animate-pulse z-10`}
         style={{ 
           filter: 'blur(20px)',
           transform: pulse ? 'scale(1.2)' : 'scale(1)',
@@ -66,7 +165,7 @@ export function CentralCore({ eventCount, severity, onPulse, onShowDetails }: Ce
       
       {/* Rotating arcs */}
       <svg 
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full z-10"
         style={{ transform: `rotate(${rotation}deg)` }}
       >
         <defs>
@@ -96,7 +195,7 @@ export function CentralCore({ eventCount, severity, onPulse, onShowDetails }: Ce
       {/* Central core */}
       <button
         onClick={onShowDetails}
-        className={`relative w-32 h-32 rounded-full bg-gradient-to-r ${getSeverityColor()} shadow-2xl ${getSeverityGlow()} flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105`}
+        className={`relative w-32 h-32 rounded-full bg-gradient-to-r ${getSeverityColor()} shadow-2xl ${getSeverityGlow()} flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105 z-20`}
         style={{ 
           transform: pulse ? 'scale(1.1)' : 'scale(1)',
         }}
@@ -118,7 +217,7 @@ export function CentralCore({ eventCount, severity, onPulse, onShowDetails }: Ce
       {orbitalTexts.map((text, i) => (
         <div
           key={i}
-          className="absolute text-xs font-mono text-cyan-300/70 whitespace-nowrap"
+          className="absolute text-xs font-mono text-cyan-300/70 whitespace-nowrap z-10"
           style={{
             transform: `rotate(${rotation + i * 60}deg) translateX(180px) rotate(${-rotation - i * 60}deg)`,
             transformOrigin: 'center'
